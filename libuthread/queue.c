@@ -43,7 +43,7 @@ int queue_destroy(queue_t queue)
 	
 	Node* currentNode = queue->frontNodeInQueue;
 	while(currentNode != queue->rearNodeInQueue){
-		Node* nextNode = currentNode->nextNode;
+		Node* nextNode = (Node*)currentNode->nextNode;
 		free(currentNode);
 		currentNode = nextNode;
 	}
@@ -56,12 +56,12 @@ int queue_enqueue(queue_t queue, void *data)
 {
 	Node* newNode = (Node*)malloc(sizeof(Node));
 	newNode->data = data;
-	newNode->frontNode = queue->rearNodeInQueue;
+	newNode->frontNode = (struct Node*)queue->rearNodeInQueue;
 	newNode->nextNode = NULL;
 
 	if(queue->queueSize != 0 && queue->frontNodeInQueue != NULL && queue->rearNodeInQueue != NULL){
 		Node* oldNode = queue->rearNodeInQueue;
-		oldNode->nextNode = newNode;
+		oldNode->nextNode = (struct Node*)newNode;
 	}else{
 		queue->frontNodeInQueue = newNode;
 	}
@@ -75,12 +75,12 @@ int queue_enqueue(queue_t queue, void *data)
 
 int queue_dequeue(queue_t queue, void **data)
 {
-	if(isQueueEmpty == -1){
+	if(isQueueEmpty(queue) == -1){
 		return -1;
 	}
 
 	*data = queue->frontNodeInQueue->data;
-	Node* newFrontNode = queue->frontNodeInQueue->nextNode;
+	Node* newFrontNode = (Node*)queue->frontNodeInQueue->nextNode;
 	newFrontNode->frontNode = NULL;
 	
 	free(queue->frontNodeInQueue);
@@ -93,7 +93,7 @@ int queue_dequeue(queue_t queue, void **data)
 
 int queue_delete(queue_t queue, void *data)
 {
-	if(isQueueEmpty == -1 || data == NULL){
+	if(isQueueEmpty(queue) == -1 || data == NULL){
 		return -1;
 	}
 	Node* currentNode = queue->frontNodeInQueue;
@@ -103,20 +103,20 @@ int queue_delete(queue_t queue, void *data)
 			Node* previousNode;
 			Node* nextNode;
 			if(currentNode == queue->frontNodeInQueue){
-				nextNode = currentNode->frontNode;
+				nextNode = (Node*)currentNode->frontNode;
 				nextNode->frontNode = NULL;
 				free(currentNode);
 				queue->frontNodeInQueue = nextNode;
 			}else if(currentNode == queue->rearNodeInQueue){
-				previousNode = currentNode->frontNode;
+				previousNode = (Node*)currentNode->frontNode;
 				previousNode->nextNode = NULL;
 				free(currentNode);
 				queue->rearNodeInQueue = previousNode;
 			}else{
-				previousNode = currentNode->frontNode;
-				nextNode = currentNode->nextNode;
-				previousNode->nextNode = nextNode;
-				nextNode->frontNode = previousNode;
+				previousNode = (Node*)currentNode->frontNode;
+				nextNode = (Node*)currentNode->nextNode;
+				previousNode->nextNode = (struct Node*)nextNode;
+				nextNode->frontNode = (struct Node*)previousNode;
 				free(currentNode);
 			}
 			queue->queueSize -= 1;
@@ -129,14 +129,14 @@ int queue_delete(queue_t queue, void *data)
 
 int queue_iterate(queue_t queue, queue_func_t func)
 {
-	if(isQueueEmpty == -1|| func == NULL){
+	if(isQueueEmpty(queue) == -1|| func == NULL){
 		return -1;
 	}
 	Node* currentNode = queue->frontNodeInQueue;
 	
 	while(currentNode != queue->rearNodeInQueue){
 		func(queue, currentNode->data);
-		currentNode = currentNode->nextNode;
+		currentNode = (Node*)currentNode->nextNode;
 	}
 	return 0;
 }

@@ -10,6 +10,7 @@
 
 #include <uthread.h>
 
+
 void hello(void *arg)
 {
 	(void)arg;
@@ -20,6 +21,9 @@ void hello(void *arg)
 int main(void)
 {
 	uthread_run(false, hello, NULL);
+
+
+	
 
 	return 0;
 }

@@ -20,7 +20,7 @@ enum{
 struct uthread_tcb {
 	int tid;
 
-	uthread_ctx_t *context;
+	uthread_ctx_t* context;
 	int threadState; //0 is ready to run, 1 is running, 2 is exit 3 is blocked
 	void* stack;
 	//yvoid* arg;
@@ -40,6 +40,8 @@ typedef struct{
 
 ScheduleController scheduleController;
 
+
+
 struct uthread_tcb *uthread_current(void)
 {
 	return scheduleController.runningThread;
@@ -47,11 +49,11 @@ struct uthread_tcb *uthread_current(void)
 
 int ThreadInitialize(uthread_func_t func, void *arg, uthread_tcb* thread){
 	thread = (uthread_tcb*)malloc(sizeof(uthread_tcb));
-	
 	thread->stack = uthread_ctx_alloc_stack();
 	if(thread->stack == NULL){
 		return -1;
 	}
+	
 	if(scheduleController.threadIdCount == 0){
 		
 		thread->threadState = STATE_READY;
@@ -59,6 +61,7 @@ int ThreadInitialize(uthread_func_t func, void *arg, uthread_tcb* thread){
 		//initialize main thread
 		thread->threadState = STATE_RUNNING;
 	}
+	thread->context = (uthread_ctx_t*)malloc(sizeof(uthread_ctx_t));
 	uthread_ctx_init(thread->context, thread->stack, func, arg);
 	thread->tid = scheduleController.threadIdCount;
 	scheduleController.threadIdCount += 1;
@@ -104,7 +107,7 @@ void uthread_exit(void)
 
 int uthread_create(uthread_func_t func, void *arg)
 {
-	uthread_tcb* thread;
+	uthread_tcb* thread = (uthread_tcb*)malloc(sizeof(uthread_tcb));
 	if(ThreadInitialize(func, arg, thread) == -1){
 		return -1;
 	}
@@ -114,10 +117,14 @@ int uthread_create(uthread_func_t func, void *arg)
 	return 0;
 }
 
-int uthread_start(uthread_func_t func, void *arg)
+
+int uthread_run(bool preempt, uthread_func_t func, void *arg)
 {
+	if(preempt){
+
+	}
 	scheduleController.threadIdCount = 0;
-	uthread_tcb* thread;
+	uthread_tcb* thread = (uthread_tcb*)malloc(sizeof(uthread_tcb));;
 	if(ThreadInitialize(func, arg, thread) == -1){
 		return -1;
 	}
