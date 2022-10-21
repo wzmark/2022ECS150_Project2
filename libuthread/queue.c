@@ -4,42 +4,151 @@
 
 #include "queue.h"
 
+typedef struct{
+	void* data;
+	struct Node* frontNode;
+	struct Node* nextNode;
+}Node;
+
 struct queue {
-	/* TODO Phase 1 */
+	int queueSize;
+	
+
+	Node* frontNodeInQueue;
+	Node* rearNodeInQueue;
 };
+
+int isQueueEmpty(queue_t queue){
+	if(queue == NULL || queue->queueSize == 0){
+		return -1;
+	}else{
+		return 1;
+	}
+}
 
 queue_t queue_create(void)
 {
-	/* TODO Phase 1 */
+	queue_t newQueue = (queue_t)malloc(sizeof(struct queue));
+	
+	newQueue->queueSize = 0;
+	newQueue->frontNodeInQueue = NULL;
+	newQueue->rearNodeInQueue = NULL;
+
+
+	return newQueue;
 }
 
 int queue_destroy(queue_t queue)
 {
-	/* TODO Phase 1 */
+	
+	Node* currentNode = queue->frontNodeInQueue;
+	while(currentNode != queue->rearNodeInQueue){
+		Node* nextNode = currentNode->nextNode;
+		free(currentNode);
+		currentNode = nextNode;
+	}
+	queue->queueSize = 0;
+	free(queue);
+	return 0;
 }
 
 int queue_enqueue(queue_t queue, void *data)
 {
-	/* TODO Phase 1 */
+	Node* newNode = (Node*)malloc(sizeof(Node));
+	newNode->data = data;
+	newNode->frontNode = queue->rearNodeInQueue;
+	newNode->nextNode = NULL;
+
+	if(queue->queueSize != 0 && queue->frontNodeInQueue != NULL && queue->rearNodeInQueue != NULL){
+		Node* oldNode = queue->rearNodeInQueue;
+		oldNode->nextNode = newNode;
+	}else{
+		queue->frontNodeInQueue = newNode;
+	}
+	
+
+	queue->rearNodeInQueue = newNode;
+	queue->queueSize += 1;
+
+	return 0;
 }
 
 int queue_dequeue(queue_t queue, void **data)
 {
-	/* TODO Phase 1 */
+	if(isQueueEmpty == -1){
+		return -1;
+	}
+
+	*data = queue->frontNodeInQueue->data;
+	Node* newFrontNode = queue->frontNodeInQueue->nextNode;
+	newFrontNode->frontNode = NULL;
+	
+	free(queue->frontNodeInQueue);
+	queue->frontNodeInQueue = newFrontNode;
+
+	queue->queueSize -= 1;
+
+	return 0;
 }
 
 int queue_delete(queue_t queue, void *data)
 {
-	/* TODO Phase 1 */
+	if(isQueueEmpty == -1 || data == NULL){
+		return -1;
+	}
+	Node* currentNode = queue->frontNodeInQueue;
+
+	while(currentNode != queue->rearNodeInQueue){
+		if(currentNode->data == data){
+			Node* previousNode;
+			Node* nextNode;
+			if(currentNode == queue->frontNodeInQueue){
+				nextNode = currentNode->frontNode;
+				nextNode->frontNode = NULL;
+				free(currentNode);
+				queue->frontNodeInQueue = nextNode;
+			}else if(currentNode == queue->rearNodeInQueue){
+				previousNode = currentNode->frontNode;
+				previousNode->nextNode = NULL;
+				free(currentNode);
+				queue->rearNodeInQueue = previousNode;
+			}else{
+				previousNode = currentNode->frontNode;
+				nextNode = currentNode->nextNode;
+				previousNode->nextNode = nextNode;
+				nextNode->frontNode = previousNode;
+				free(currentNode);
+			}
+			queue->queueSize -= 1;
+			return 0;
+		}
+	}
+	
+	return -1;
 }
 
 int queue_iterate(queue_t queue, queue_func_t func)
 {
-	/* TODO Phase 1 */
+	if(isQueueEmpty == -1|| func == NULL){
+		return -1;
+	}
+	Node* currentNode = queue->frontNodeInQueue;
+	
+	while(currentNode != queue->rearNodeInQueue){
+		func(queue, currentNode->data);
+		currentNode = currentNode->nextNode;
+	}
+	return 0;
 }
 
 int queue_length(queue_t queue)
 {
-	/* TODO Phase 1 */
+	if(queue == NULL){
+		return -1;
+	}
+	if(queue->frontNodeInQueue == NULL && queue->rearNodeInQueue == NULL){
+		return 0;
+	}
+	return queue->queueSize;
 }
 

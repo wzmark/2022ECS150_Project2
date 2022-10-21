@@ -2,6 +2,7 @@
 #define _UTHREAD_H
 
 #include <stdbool.h>
+#include "queue.h"
 
 /*
  * uthread_func_t - Thread function type
