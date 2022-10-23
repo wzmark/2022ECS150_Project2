@@ -31,8 +31,8 @@ queue_t queue_create(void)
 	queue_t newQueue = (queue_t)malloc(sizeof(struct queue));
 	
 	newQueue->queueSize = 0;
-	newQueue->frontNodeInQueue = NULL;
-	newQueue->rearNodeInQueue = NULL;
+	newQueue->frontNodeInQueue = (Node*)malloc(sizeof(Node));
+	newQueue->rearNodeInQueue = (Node*)malloc(sizeof(Node));
 
 
 	return newQueue;
@@ -78,12 +78,9 @@ int queue_dequeue(queue_t queue, void **data)
 	if(isQueueEmpty(queue) == -1){
 		return -1;
 	}
-
+	
 	*data = queue->frontNodeInQueue->data;
 	Node* newFrontNode = (Node*)queue->frontNodeInQueue->nextNode;
-	newFrontNode->frontNode = NULL;
-	
-	free(queue->frontNodeInQueue);
 	queue->frontNodeInQueue = newFrontNode;
 
 	queue->queueSize -= 1;

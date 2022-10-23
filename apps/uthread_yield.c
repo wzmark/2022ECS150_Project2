@@ -17,6 +17,18 @@
 
 #include <uthread.h>
 
+#define TEST_ASSERT(assert)				\
+do {									\
+	printf("ASSERT: " #assert " ... ");	\
+	if (assert) {						\
+		printf("PASS\n");				\
+	} else	{							\
+		printf("FAIL\n");				\
+		exit(1);						\
+	}									\
+} while(0)
+
+
 void thread3(void *arg)
 {
 	(void)arg;
@@ -47,5 +59,6 @@ void thread1(void *arg)
 int main(void)
 {
 	uthread_run(false, thread1, NULL);
+	
 	return 0;
 }

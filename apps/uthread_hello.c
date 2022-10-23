@@ -9,6 +9,16 @@
 #include <stdlib.h>
 
 #include <uthread.h>
+#define TEST_ASSERT(assert)				\
+do {									\
+	printf("ASSERT: " #assert " ... ");	\
+	if (assert) {						\
+		printf("PASS\n");				\
+	} else	{							\
+		printf("FAIL\n");				\
+		exit(1);						\
+	}									\
+} while(0)
 
 
 void hello(void *arg)
@@ -21,7 +31,7 @@ void hello(void *arg)
 int main(void)
 {
 	uthread_run(false, hello, NULL);
-
+	
 
 	
 
