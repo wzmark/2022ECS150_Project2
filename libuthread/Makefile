@@ -1,7 +1,7 @@
 # Target library
 lib := libuthread.a
 
-objs:= uthread.o queue.o 
+objs:= uthread.o queue.o sem.o
 objs+= context.o preempt.o 
 
 # Define compilation toolchain

@@ -54,6 +54,17 @@ int queue_destroy(queue_t queue)
 
 int queue_enqueue(queue_t queue, void *data)
 {
+	if(queue_length(queue) == 0){
+		Node* newNode = (Node*)malloc(sizeof(Node));
+		newNode->data = data;
+		newNode->nextNode = NULL;
+		newNode->frontNode = NULL;
+		queue->frontNodeInQueue = newNode;
+		queue->rearNodeInQueue = newNode;
+		queue->queueSize += 1;
+
+	return 0;
+	}
 	Node* newNode = (Node*)malloc(sizeof(Node));
 	newNode->data = data;
 	newNode->frontNode = (struct Node*)queue->rearNodeInQueue;
@@ -78,10 +89,23 @@ int queue_dequeue(queue_t queue, void **data)
 	if(isQueueEmpty(queue) == -1){
 		return -1;
 	}
-	
 	*data = queue->frontNodeInQueue->data;
+	if(queue_length(queue) == 1){
+		queue->frontNodeInQueue = NULL;
+		queue->rearNodeInQueue = NULL;
+		queue->queueSize -= 1;
+
+		return 0;
+	}
+	
+	
 	Node* newFrontNode = (Node*)queue->frontNodeInQueue->nextNode;
 	queue->frontNodeInQueue = newFrontNode;
+	if(queue_length(queue) != 1){
+		queue->frontNodeInQueue->frontNode = NULL;
+	}
+	
+	
 
 	queue->queueSize -= 1;
 
@@ -94,13 +118,23 @@ int queue_delete(queue_t queue, void *data)
 		return -1;
 	}
 	Node* currentNode = queue->frontNodeInQueue;
+	if(queue_length(queue) == 1){
+		if(currentNode->data == queue->frontNodeInQueue->data){
+			queue->frontNodeInQueue = NULL;
+			queue->rearNodeInQueue = NULL;
+			queue->queueSize -= 1;
+			return 0;
+		}
+	}
+
+	
 
 	while(currentNode != queue->rearNodeInQueue){
 		if(currentNode->data == data){
 			Node* previousNode;
 			Node* nextNode;
 			if(currentNode == queue->frontNodeInQueue){
-				nextNode = (Node*)currentNode->frontNode;
+				nextNode = (Node*)currentNode->nextNode;
 				nextNode->frontNode = NULL;
 				free(currentNode);
 				queue->frontNodeInQueue = nextNode;
@@ -118,6 +152,12 @@ int queue_delete(queue_t queue, void *data)
 			}
 			queue->queueSize -= 1;
 			return 0;
+		}
+		currentNode = (Node*)currentNode->nextNode;
+		if(currentNode->data == queue->rearNodeInQueue){
+			Node* previousNode = (Node *)queue->rearNodeInQueue->frontNode;
+			queue->rearNodeInQueue = previousNode;
+			queue->rearNodeInQueue->nextNode = NULL;
 		}
 	}
 	
