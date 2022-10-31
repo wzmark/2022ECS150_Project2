@@ -83,6 +83,7 @@ int ThreadInitialize(uthread_func_t func, void *arg, uthread_tcb* thread){
 
 void uthread_yield(void)
 {
+	preempt_disable();
 	uthread_tcb* savedThread = scheduleController->runningThread;
 	//uthread_ctx_t context = scheduleController->runningThread->context;
 	if(savedThread->tid != 0){
@@ -101,7 +102,7 @@ void uthread_yield(void)
 		scheduleController->runningThread = scheduleController->mainThread;
 		scheduleController->runningThread->threadState = STATE_RUNNING;
 	}
-	
+	preempt_enable();
 	uthread_ctx_switch(&savedThread->context, &scheduleController->runningThread->context);
 	
 
@@ -109,6 +110,7 @@ void uthread_yield(void)
 
 void uthread_exit(void)
 {
+	preempt_disable();
 	uthread_ctx_t context = scheduleController->runningThread->context;
 	scheduleController->runningThread->threadState = STATE_EXIT;
 	if(queue_enqueue(scheduleController->queueOfZombie, (void*)scheduleController->runningThread) == -1){
@@ -122,6 +124,7 @@ void uthread_exit(void)
 		scheduleController->runningThread = scheduleController->mainThread;
 		scheduleController->runningThread->threadState = STATE_RUNNING;
 	}
+	preempt_enable();
 	uthread_ctx_switch(&context, &scheduleController->runningThread->context);
 }
 
@@ -141,7 +144,7 @@ int uthread_create(uthread_func_t func, void *arg)
 int uthread_run(bool preempt, uthread_func_t func, void *arg)
 {
 	if(preempt){
-
+		preempt_start(preempt);
 	}
 	scheduleController = (ScheduleController*)malloc(sizeof(ScheduleController));
 	scheduleController->queueOfBlocked = queue_create();
@@ -181,6 +184,7 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
 
 void uthread_block(void)
 {
+		preempt_disable();
 		uthread_tcb* savedThread = scheduleController->runningThread;
 		
 		if(savedThread->tid != 0){
@@ -199,7 +203,7 @@ void uthread_block(void)
 				scheduleController->runningThread = scheduleController->mainThread;
 				scheduleController->runningThread->threadState = STATE_RUNNING;
 		}
-		
+		preempt_enable();
 		uthread_ctx_switch(&savedThread->context, &scheduleController->runningThread->context);
 		
 }
@@ -211,5 +215,5 @@ void uthread_unblock(struct uthread_tcb *uthread)
 		queue_delete(scheduleController->queueOfBlocked, uthread);
 		queue_enqueue(scheduleController->queueOfReady, uthread);
 		
-		//uthread_ctx_switch(&savedThread->context, &uthread->context);
+		
 }

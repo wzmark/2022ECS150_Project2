@@ -32,27 +32,34 @@ do {									\
 void thread3(void *arg)
 {
 	(void)arg;
-
+	//2
 	uthread_yield();
+
 	printf("thread3\n");
 }
 
 void thread2(void *arg)
 {
 	(void)arg;
-
+	//1 
 	uthread_create(thread3, NULL);
+	//1 3
 	uthread_yield();
+	//2
 	printf("thread2\n");
+	
 }
 
 void thread1(void *arg)
 {
 	(void)arg;
-
+	// <- 2
 	uthread_create(thread2, NULL);
+	//2
 	uthread_yield();
+	//3 2
 	printf("thread1\n");
+
 	uthread_yield();
 }
 

@@ -4,7 +4,7 @@ lib := libuthread.a
 objs:= uthread.o queue.o sem.o
 objs+= context.o preempt.o 
 
-//TODO: need rewrite whole Makefile
+
 # Define compilation toolchain
 CC	= gcc
 # General options

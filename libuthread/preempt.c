@@ -8,6 +8,7 @@
 
 #include "private.h"
 #include "uthread.h"
+#include "string.h"
 
 /*
  * Frequency of preemption
@@ -15,26 +16,72 @@
  */
 #define HZ 100
 
+
+struct itimerval New, Old;
+struct sigaction Sigaction;
+
+
+//if argument is 1 start the alarm else stop
+int Alarm(int alarmType){
+	int usec = 0;
+	if(alarmType == 1){
+		usec = 1000000/HZ;
+	}
+	New.it_interval.tv_usec = usec;
+	New.it_interval.tv_sec = 0;
+	New.it_value.tv_usec = usec;
+	New.it_value.tv_sec = 0;
+	if (setitimer (ITIMER_VIRTUAL, &New, &Old) < 0)
+		return 0;
+	return 1;
+}
+
+void AlarmHandler(){
+	
+	uthread_block();
+	return;
+}
+
 void preempt_disable(void)
 {
-	/* TODO Phase 4 */
+	if(sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL) == -1){
+		return;
+	}
 }
 
 void preempt_enable(void)
 {
-	/* TODO Phase 4 */
+	if(sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL) == -1){
+		return;
+	}
+
 }
 
 void preempt_start(bool preempt)
 {
-	/* TODO Phase 4 */
-	if(preempt == 1){
+	
+	if(preempt){
+		//preemption = (PreemptiveController*)malloc(sizeof(PreemptiveController));
+		Sigaction.sa_flags = 0;
+		Sigaction.sa_handler = AlarmHandler;
+		sigaction(SIGVTALRM, &Sigaction, NULL);
+		sigemptyset(&Sigaction.sa_mask);
 		
+		//sigemptyset(&Sigaction.sa_mask);
+		sigaddset(&Sigaction.sa_mask, SIGVTALRM);
+		sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL);
+		
+		Alarm(1);
+
 	}
 }
 
 void preempt_stop(void)
 {
-	/* TODO Phase 4 */
+	Alarm(0);
+	Sigaction.sa_handler = SIG_DFL;
+	if(sigaction(SIGVTALRM, &Sigaction, NULL)){
+		return;
+	}
 }
 
