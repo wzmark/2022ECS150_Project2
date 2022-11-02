@@ -34,8 +34,9 @@ void thread1(void *arg)
 	uthread_create(thread2, NULL);
 	printf("thread1\n");
     while(1){
-        
-    }
+		
+	}
+	printf("finish thread1\n");
 	return;
 }
 
