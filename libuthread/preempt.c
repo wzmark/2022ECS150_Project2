@@ -23,64 +23,74 @@ struct sigaction Sigaction;
 
 
 //if argument is 1 start the alarm else stop
+//initialize the alarm 
 int Alarm(int alarmType){
-	int usec = 0;
-	if(alarmType == 1){
-		usec = 1000000/HZ;
-	}
-	New.it_interval.tv_usec = usec;
-	New.it_interval.tv_sec = 0;
-	New.it_value.tv_usec = usec;
-	New.it_value.tv_sec = 0;
-	if (setitimer (ITIMER_VIRTUAL, &New, &Old) < 0)
-		return 0;
-	return 1;
+		//if use for stop, usec is 0
+		int usec = 0;
+		//use for initialize the alarm
+		if(alarmType == 1){
+				usec = 1000000/HZ;
+		}
+		//set timer
+		New.it_interval.tv_usec = usec;
+		New.it_interval.tv_sec = 0;
+		New.it_value.tv_usec = usec;
+		New.it_value.tv_sec = 0;
+		if (setitimer (ITIMER_VIRTUAL, &New, &Old) < 0){
+				return 0;
+		}
+				
+		return 1;
 }
 
 void AlarmHandler(){
-	
-	uthread_block();
-	return;
+		//block the thread which need to interrupt
+		uthread_block();
+		return;
 }
 
 void preempt_disable(void)
 {
-	if(sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL) == -1){
-		return;
-	}
+		//disable, by set the SIG_UNBLOCK
+		if(sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL) == -1){
+				return;
+		}
 }
 
 void preempt_enable(void)
 {
-	if(sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL) == -1){
-		return;
-	}
+		//disable, by set the SIG_BLOCK
+		if(sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL) == -1){
+				return;
+		}
 
 }
 
 void preempt_start(bool preempt)
 {
 	
-	if(preempt){
-		//preemption = (PreemptiveController*)malloc(sizeof(PreemptiveController));
-		sigemptyset(&Sigaction.sa_mask);
-		Sigaction.sa_flags = 0;
-		Sigaction.sa_handler = AlarmHandler;
-		sigaction(SIGVTALRM, &Sigaction, NULL);
-		sigaddset(&Sigaction.sa_mask, SIGVTALRM);
-		sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL);
-		
-		Alarm(1);
+		if(preempt){
+				//set the sigaction
+				sigemptyset(&Sigaction.sa_mask);
+				Sigaction.sa_flags = 0;
+				//set interrupt handler and signal
+				Sigaction.sa_handler = AlarmHandler;
+				sigaction(SIGVTALRM, &Sigaction, NULL);
+				sigaddset(&Sigaction.sa_mask, SIGVTALRM);
+				sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL);
+				
+				Alarm(1);
 
-	}
+		}
 }
 
 void preempt_stop(void)
 {
-	Alarm(0);
-	Sigaction.sa_handler = SIG_DFL;
-	if(sigaction(SIGVTALRM, &Sigaction, NULL)){
-		return;
-	}
+		//remove the alarm and sigaction
+		Alarm(0);
+		Sigaction.sa_handler = SIG_DFL;
+		if(sigaction(SIGVTALRM, &Sigaction, NULL)){
+				return;
+		}
 }
 
