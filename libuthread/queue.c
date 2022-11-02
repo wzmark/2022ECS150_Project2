@@ -110,64 +110,75 @@ int queue_enqueue(queue_t queue, void *data)
 
 int queue_dequeue(queue_t queue, void **data)
 {
+	//check whether queue is empty if empty not need to dequeue
 	if(isQueueEmpty(queue) == -1){
 		return -1;
 	}
+	//get first node data
 	*data = queue->frontNodeInQueue->data;
 	if(queue_length(queue) == 1){
+		//reset queue if only one node in the queue and return
 		queue->frontNodeInQueue = NULL;
 		queue->rearNodeInQueue = NULL;
 		queue->queueSize -= 1;
-
 		return 0;
 	}
 	
-	
+	//rebase the front node of the queue
 	Node* newFrontNode = (Node*)queue->frontNodeInQueue->nextNode;
 	queue->frontNodeInQueue = newFrontNode;
 	if(queue_length(queue) != 1){
 		queue->frontNodeInQueue->frontNode = NULL;
 	}
-	
-	
-
+	//queue size minus one
 	queue->queueSize -= 1;
 
 	return 0;
 }
 
+
 int queue_delete(queue_t queue, void *data)
 {
+	//empty queue not need to delete or data which need to find is empty
 	if(isQueueEmpty(queue) == -1 || data == NULL){
 		return -1;
 	}
+
 	Node* currentNode = queue->frontNodeInQueue;
+	//if current queue size is 1, check whether match if match delete and return
 	if(queue_length(queue) == 1){
 		if(currentNode->data == queue->frontNodeInQueue->data){
 			queue->frontNodeInQueue = NULL;
 			queue->rearNodeInQueue = NULL;
+			free(currentNode);
 			queue->queueSize -= 1;
 			return 0;
 		}
 	}
 
-	
-
+	//use while loop to iterate whole queue
 	while(currentNode != queue->rearNodeInQueue){
 		if(currentNode->data == data){
+			//current node match the data
 			Node* previousNode;
 			Node* nextNode;
 			if(currentNode == queue->frontNodeInQueue){
+				//if data locate in the first node of the queue
+				//only need to rebase the first node
 				nextNode = (Node*)currentNode->nextNode;
 				nextNode->frontNode = NULL;
 				free(currentNode);
 				queue->frontNodeInQueue = nextNode;
 			}else if(currentNode == queue->rearNodeInQueue){
+				//if data locate in the end node of the queue
+				//only need to rebase the last node
 				previousNode = (Node*)currentNode->frontNode;
 				previousNode->nextNode = NULL;
 				free(currentNode);
 				queue->rearNodeInQueue = previousNode;
 			}else{
+				//if data locate in the middle of the queue
+				//need to reconnect the previous node and next node
 				previousNode = (Node*)currentNode->frontNode;
 				nextNode = (Node*)currentNode->nextNode;
 				previousNode->nextNode = (struct Node*)nextNode;
@@ -178,38 +189,46 @@ int queue_delete(queue_t queue, void *data)
 			return 0;
 		}
 		currentNode = (Node*)currentNode->nextNode;
+		//free for the node locate at the last node of the queue
 		if(currentNode->data == queue->rearNodeInQueue){
 			Node* previousNode = (Node *)queue->rearNodeInQueue->frontNode;
 			queue->rearNodeInQueue = previousNode;
 			queue->rearNodeInQueue->nextNode = NULL;
+			queue->queueSize -= 1;
 		}
 	}
-	
+	//return -1 if previous code do not succeed
 	return -1;
 }
 
 int queue_iterate(queue_t queue, queue_func_t func)
 {
+	//empty queue not need to continue or function which need to use is empty
 	if(isQueueEmpty(queue) == -1|| func == NULL){
 		return -1;
 	}
+	//iterate whole queue except last one
 	Node* currentNode = queue->frontNodeInQueue;
-	
 	while(currentNode != queue->rearNodeInQueue){
 		func(queue, currentNode->data);
 		currentNode = (Node*)currentNode->nextNode;
 	}
+	//func the last one
+	func(queue, queue->rearNodeInQueue->data);
 	return 0;
 }
 
 int queue_length(queue_t queue)
 {
+	//if queue is empty direct return 
 	if(queue == NULL){
 		return -1;
 	}
+	//return zero if empty
 	if(queue->frontNodeInQueue == NULL && queue->rearNodeInQueue == NULL){
 		return 0;
 	}
+	//direct return the size
 	return queue->queueSize;
 }
 
