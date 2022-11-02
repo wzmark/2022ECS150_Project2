@@ -6,7 +6,7 @@
 #include "queue.h"
 #include "sem.h"
 #include "private.h"
-//#include "uthread.c"
+
 
 
 struct uthread_tcb {
@@ -18,6 +18,7 @@ struct uthread_tcb {
 	
 };
 
+
 typedef struct uthread_tcb  uthread_tcb;
 
 struct semaphore {
@@ -26,15 +27,15 @@ struct semaphore {
 	int lock;
 	queue_t queue;
 
-	/* TODO Phase 3 */
 };
+
 struct semaphore* semaphore;
 
 sem_t sem_create(size_t count)
 {
 	semaphore = (struct semaphore*)malloc(sizeof(semaphore));
 	semaphore->maxCount = count;
-	semaphore->currentNumberOfThread = 0;
+	semaphore->currentNumberOfThread = count;
 	semaphore->queue = queue_create();
 	return semaphore;
 }
@@ -58,7 +59,7 @@ int sem_down(sem_t sem)
 	}
 	
 	sem->currentNumberOfThread -= 1;
-	//printf("1");
+	
 	if(sem->currentNumberOfThread < 0){
 		
 		struct uthread_tcb* thread = (uthread_tcb*)malloc(sizeof(uthread_tcb));
