@@ -4,21 +4,28 @@
 
 #include "queue.h"
 
+//Basic Node for the double linked list
+//elements: data, front node next node
 typedef struct{
 	void* data;
 	struct Node* frontNode;
 	struct Node* nextNode;
 }Node;
 
+//double linked list for storing thread
+//queueSize: current size of queue, dequeue or enqueue will change
+//frontNodeInQueue/readNodeInQueue: the first and the last node in the queue
 struct queue {
 	int queueSize;
-	
-
 	Node* frontNodeInQueue;
 	Node* rearNodeInQueue;
 };
 
+//check whether current is empty
+//queue: passing queue need to check
+//return type: -1 is empty 1 is not empty queue
 int isQueueEmpty(queue_t queue){
+	//check queue size and queue
 	if(queue == NULL || queue->queueSize == 0){
 		return -1;
 	}else{
@@ -26,34 +33,48 @@ int isQueueEmpty(queue_t queue){
 	}
 }
 
+//initialize queue
+//return type: queue which created in the function 
 queue_t queue_create(void)
 {
+	//create space for the queue
 	queue_t newQueue = (queue_t)malloc(sizeof(struct queue));
 	
+	//basically initialize all elements in the struct
 	newQueue->queueSize = 0;
 	newQueue->frontNodeInQueue = (Node*)malloc(sizeof(Node));
 	newQueue->rearNodeInQueue = (Node*)malloc(sizeof(Node));
 
-
 	return newQueue;
 }
 
+//remove all the information in the queue
+//return type: 0 if successfully remove
 int queue_destroy(queue_t queue)
 {
-	
+	//use while loop to free all the node except the last one
+	//start at the first node
 	Node* currentNode = queue->frontNodeInQueue;
 	while(currentNode != queue->rearNodeInQueue){
+		//free current and move target to the next node
 		Node* nextNode = (Node*)currentNode->nextNode;
 		free(currentNode);
 		currentNode = nextNode;
 	}
+	//free the last one
+	Node* currentNode = queue->rearNodeInQueue;
+	free(currentNode);
+	//reset the queue size
 	queue->queueSize = 0;
 	free(queue);
 	return 0;
 }
 
+
+
 int queue_enqueue(queue_t queue, void *data)
 {
+	//special case when queue is empty, need to set data to the last and the first
 	if(queue_length(queue) == 0){
 		Node* newNode = (Node*)malloc(sizeof(Node));
 		newNode->data = data;
@@ -62,14 +83,17 @@ int queue_enqueue(queue_t queue, void *data)
 		queue->frontNodeInQueue = newNode;
 		queue->rearNodeInQueue = newNode;
 		queue->queueSize += 1;
-
-	return 0;
+		//not need to continue directly return
+		return 0;
 	}
+	//initialize the new node with argument
 	Node* newNode = (Node*)malloc(sizeof(Node));
 	newNode->data = data;
+	//front node is the last node of the queue
 	newNode->frontNode = (struct Node*)queue->rearNodeInQueue;
+	//nextNode do not exist
 	newNode->nextNode = NULL;
-
+	//if queue is not empty, put new node into the last part else put into the new
 	if(queue->queueSize != 0 && queue->frontNodeInQueue != NULL && queue->rearNodeInQueue != NULL){
 		Node* oldNode = queue->rearNodeInQueue;
 		oldNode->nextNode = (struct Node*)newNode;
@@ -77,8 +101,8 @@ int queue_enqueue(queue_t queue, void *data)
 		queue->frontNodeInQueue = newNode;
 	}
 	
-
 	queue->rearNodeInQueue = newNode;
+	//size increase to 1
 	queue->queueSize += 1;
 
 	return 0;
