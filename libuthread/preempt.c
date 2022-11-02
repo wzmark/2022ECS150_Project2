@@ -62,12 +62,10 @@ void preempt_start(bool preempt)
 	
 	if(preempt){
 		//preemption = (PreemptiveController*)malloc(sizeof(PreemptiveController));
+		sigemptyset(&Sigaction.sa_mask);
 		Sigaction.sa_flags = 0;
 		Sigaction.sa_handler = AlarmHandler;
 		sigaction(SIGVTALRM, &Sigaction, NULL);
-		sigemptyset(&Sigaction.sa_mask);
-		
-		//sigemptyset(&Sigaction.sa_mask);
 		sigaddset(&Sigaction.sa_mask, SIGVTALRM);
 		sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL);
 		

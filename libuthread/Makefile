@@ -1,8 +1,7 @@
 # Target library
 lib := libuthread.a
 
-objs:= uthread.o queue.o sem.o
-objs+= context.o preempt.o 
+objs:= uthread.o queue.o sem.o context.o preempt.o 
 
 
 # Define compilation toolchain
@@ -11,7 +10,7 @@ CC	= gcc
 CFLAGS	:= -Wall -Wextra -MMD -Werror
 
 # Variable for possible debugging, set D=1 to see messages
-ifneq ($(D),1)
+ifneq ($(V),1)
 Q = @
 endif
 
