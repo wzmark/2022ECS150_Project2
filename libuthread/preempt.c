@@ -45,7 +45,7 @@ int Alarm(int alarmType){
 
 void AlarmHandler(){
 		//block the thread which need to interrupt
-		uthread_block();
+		uthread_yield();
 		return;
 }
 

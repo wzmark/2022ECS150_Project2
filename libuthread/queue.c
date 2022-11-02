@@ -62,7 +62,7 @@ int queue_destroy(queue_t queue)
 				currentNode = nextNode;
 		}
 		//free the last one
-		Node* currentNode = queue->rearNodeInQueue;
+		currentNode = queue->rearNodeInQueue;
 		free(currentNode);
 		//reset the queue size
 		queue->queueSize = 0;
