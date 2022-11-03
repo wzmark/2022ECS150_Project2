@@ -80,7 +80,7 @@ int ThreadInitialize(uthread_func_t func, void *arg, uthread_tcb* thread){
 				func = NULL;
 			
 		}
-		//thread->context = (uthread_ctx_t)malloc(sizeof(uthread_ctx_t));
+		
 		if(uthread_ctx_init(&thread->context, thread->stack, func, arg) == -1){
 				return -1;
 		}
