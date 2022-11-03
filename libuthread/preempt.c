@@ -18,23 +18,23 @@
 #define HZ 100
 
 
-struct itimerval New, Old;
+struct itimerval New;
+struct itimerval Old;
 struct sigaction Sigaction;
 
 
 //if argument is 1 start the alarm else stop
 //initialize the alarm 
 int Alarm(int alarmType){
-		//if use for stop, usec is 0
-		int usec = 0;
 		//use for initialize the alarm
+		New.it_interval.tv_usec = 0;
+		New.it_value.tv_usec = 0;
 		if(alarmType == 1){
-				usec = 1000000/HZ;
+				New.it_interval.tv_usec = 1000000/HZ;
+				New.it_value.tv_usec = 1000000/HZ;
 		}
 		//set timer
-		New.it_interval.tv_usec = usec;
 		New.it_interval.tv_sec = 0;
-		New.it_value.tv_usec = usec;
 		New.it_value.tv_sec = 0;
 		if (setitimer (ITIMER_VIRTUAL, &New, &Old) < 0){
 				return 0;
@@ -60,7 +60,7 @@ void preempt_disable(void)
 void preempt_enable(void)
 {
 		//disable, by set the SIG_BLOCK
-		if(sigprocmask(SIG_UNBLOCK, &Sigaction.sa_mask, NULL) == -1){
+		if(sigprocmask(SIG_BLOCK, &Sigaction.sa_mask, NULL) == -1){
 				return;
 		}
 
@@ -84,13 +84,14 @@ void preempt_start(bool preempt)
 		}
 }
 
+
 void preempt_stop(void)
 {
 		//remove the alarm and sigaction
 		Alarm(0);
 		Sigaction.sa_handler = SIG_DFL;
+		sigemptyset(&Sigaction.sa_mask);
 		if(sigaction(SIGVTALRM, &Sigaction, NULL)){
 				return;
 		}
 }
-

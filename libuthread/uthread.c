@@ -24,11 +24,9 @@ enum{
 
 struct uthread_tcb {
 		int tid; //thread id
-
 		uthread_ctx_t context;
 		int threadState; //0 is ready to run, 1 is running, 2 is exit 3 is blocked
 		void* stack;
-	
 };
 
 typedef struct uthread_tcb  uthread_tcb;
@@ -186,9 +184,9 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
 		scheduleController->threadIdCount = 0;
 		//if queue creating fail, return -1
 		if(scheduleController->queueOfBlocked == NULL ||
-			scheduleController->queueOfReady == NULL ||
-			scheduleController->queueOfZombie == NULL){
-					return -1;
+				scheduleController->queueOfReady == NULL ||
+				scheduleController->queueOfZombie == NULL){
+						return -1;
 		}
 		
 		//initialize the main thread
@@ -246,6 +244,5 @@ void uthread_unblock(struct uthread_tcb *uthread)
 		queue_delete(scheduleController->queueOfBlocked, uthread);
 		//put thread back to the ready queue
 		queue_enqueue(scheduleController->queueOfReady, uthread);
-		
 		
 }
