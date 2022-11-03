@@ -24,7 +24,7 @@ struct sigaction Sigaction;
 
 
 //if argument is 1 start the alarm else stop
-//initialize the alarm 
+//initialize and remove the alarm 
 int Alarm(int alarmType){
 		//use for initialize the alarm
 		New.it_interval.tv_usec = 0;

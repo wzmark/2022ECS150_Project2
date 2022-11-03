@@ -19,20 +19,19 @@ do {									\
 
 void thread2(void *arg)
 {
+	//normal thread and print
 	(void)arg;
-	
-
-	
 	printf("thread2\n");
 	return;
 }
 
 void thread1(void *arg)
 {
+	//unusal thread will create unexited block
 	(void)arg;
-	
 	uthread_create(thread2, NULL);
 	printf("thread1\n");
+	//blokc and interrupt should happen here
     while(1){
 
 	}

@@ -34,18 +34,19 @@ void test_queue_simple(void)
 	fprintf(stderr, "*** TEST queue_simple ***\n");
 
 	q = queue_create();
-	queue_enqueue(q, &data);
-	queue_enqueue(q, &data1);
-	queue_enqueue(q, &data2);
-	queue_dequeue(q, (void**)&ptr);
-	TEST_ASSERT(ptr == &data);
+	queue_enqueue(q, &data); // queue <- data0
+	queue_enqueue(q, &data1); //queue(data0) <- data1
+	queue_enqueue(q, &data2); //queue(data0 data1) <- data 2
+	queue_dequeue(q, (void**)&ptr); //queue(data0 data1 data2) -> data0
+	TEST_ASSERT(ptr == &data); //test equal
 	
-	queue_enqueue(q, &data);
-	queue_delete(q, &data1);
-	queue_dequeue(q, (void**)&ptr2);
-	TEST_ASSERT(ptr2 == &data2);
-	queue_delete(q, &data1);
-	//TEST_ASSERT(ptr == &data);
+	queue_enqueue(q, &data); //queue(data1 data2) <- data 0
+	queue_delete(q, &data1); //del data1  queue(data1 data2 data0)
+	queue_dequeue(q, (void**)&ptr2); //queue(data2 data0) -> data2
+	TEST_ASSERT(ptr2 == &data2); //test equal
+	queue_delete(q, &data1); //del data0 queue(data0)
+								//empty
+	
 	
 }
 
